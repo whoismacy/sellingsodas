@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "460447969046",
+    "project_id": "sodaadminapp1",
+    "storage_bucket": "sodaadminapp1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460447969046:android:b35716f1fed74062206a37",
+        "android_client_info": {
+          "package_name": "com.whoismacy.android.sodaadminapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_OcBzrjRGGVI3wHHHM8_PeTyXIoXkg3U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

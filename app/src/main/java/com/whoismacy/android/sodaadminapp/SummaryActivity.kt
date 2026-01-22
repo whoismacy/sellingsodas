@@ -17,51 +17,39 @@ data class SodaSummary(val brand: String, val totalSold: Int)
 
 class SummaryActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySummaryBinding
-    private val sodaBrands = listOf("Coke", "Fanta", "Sprite", "Stoney", "Krest")
+    private val sodaBrands = listOf("Coke", "Fanta", "Sprite")
     
     // Mock data: Map of Location -> List of SodaSummary
     private val salesData = mapOf(
         "All" to listOf(
             SodaSummary("Coke", 450),
             SodaSummary("Fanta", 320),
-            SodaSummary("Sprite", 280),
-            SodaSummary("Stoney", 150),
-            SodaSummary("Krest", 90)
+            SodaSummary("Sprite", 280)
         ),
         "Nairobi(HQ)" to listOf(
             SodaSummary("Coke", 200),
             SodaSummary("Fanta", 150),
-            SodaSummary("Sprite", 100),
-            SodaSummary("Stoney", 50),
-            SodaSummary("Krest", 30)
+            SodaSummary("Sprite", 100)
         ),
         "Kisumu" to listOf(
             SodaSummary("Coke", 80),
             SodaSummary("Fanta", 60),
-            SodaSummary("Sprite", 50),
-            SodaSummary("Stoney", 30),
-            SodaSummary("Krest", 20)
+            SodaSummary("Sprite", 50)
         ),
         "Eldoret" to listOf(
             SodaSummary("Coke", 70),
             SodaSummary("Fanta", 40),
-            SodaSummary("Sprite", 60),
-            SodaSummary("Stoney", 20),
-            SodaSummary("Krest", 15)
+            SodaSummary("Sprite", 60)
         ),
         "Mombasa" to listOf(
             SodaSummary("Coke", 60),
             SodaSummary("Fanta", 40),
-            SodaSummary("Sprite", 40),
-            SodaSummary("Stoney", 30),
-            SodaSummary("Krest", 15)
+            SodaSummary("Sprite", 40)
         ),
         "Nakuru" to listOf(
             SodaSummary("Coke", 40),
             SodaSummary("Fanta", 30),
-            SodaSummary("Sprite", 30),
-            SodaSummary("Stoney", 20),
-            SodaSummary("Krest", 10)
+            SodaSummary("Sprite", 30)
         )
     )
 
@@ -71,12 +59,19 @@ class SummaryActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val username = intent.getStringExtra("EXTRA_USERNAME") ?: "Admin"
-        binding.welcomeTextView.text = "Welcome, $username"
+        val displayName = username.substringBefore("@")
+        binding.welcomeTextView.text = "Welcome, $displayName"
 
         binding.logoutButton.setOnClickListener {
             Firebase.auth.signOut()
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
+        }
+
+        binding.reStockButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("EXTRA_USERNAME", username)
+            startActivity(intent)
         }
 
         setupLocationSpinner()

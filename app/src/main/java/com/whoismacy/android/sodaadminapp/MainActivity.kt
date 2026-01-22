@@ -18,9 +18,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Get username from Intent
+        // Get username from Intent and handle display name
         val username = intent.getStringExtra("EXTRA_USERNAME") ?: "User"
-        binding.userNameTextView.text = "Welcome, $username!"
+        val displayName = username.substringBefore("@")
+        binding.userNameTextView.text = "Welcome, $displayName!"
 
         // Logout logic
         binding.logoutButton.setOnClickListener {
@@ -33,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         val locations = arrayOf("Nairobi(HQ)", "Kisumu", "Eldoret", "Mombasa", "Nakuru")
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, locations)
         binding.locationAutoComplete.setAdapter(adapter)
-        
+
         binding.locationAutoComplete.setOnItemClickListener { parent, _, position, _ ->
             selectedLocation = parent.getItemAtPosition(position) as String
             Toast.makeText(this, "Location set to: $selectedLocation", Toast.LENGTH_SHORT).show()

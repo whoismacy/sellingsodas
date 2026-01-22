@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.whoismacy.android.sodaadminapp.databinding.FragmentDuplicateBinding
+import kotlin.random.Random
 
 class SodaFragment : Fragment() {
     private var _binding: FragmentDuplicateBinding? = null
@@ -22,6 +23,15 @@ class SodaFragment : Fragment() {
         _binding = FragmentDuplicateBinding.inflate(inflater, container, false)
         val sodaName = arguments?.getString(ARG_SODA_NAME) ?: "Unknown Soda"
         binding.textView.text = sodaName
+
+        // Mock data for display (to be replaced with API later)
+        val mockSold = Random.nextInt(50, 200)
+        val mockRemaining = Random.nextInt(10, 100)
+        val mockMoney = Random.nextInt(500, 5000)
+
+        binding.soldTextView.text = "Sold: $mockSold"
+        binding.remainingTextView.text = "Remaining: $mockRemaining"
+        binding.moneyTextView.text = "Money Generated: $$mockMoney"
 
         binding.innerBuyButton.setOnClickListener {
             val mainActivity = activity as? MainActivity
@@ -55,7 +65,7 @@ class SodaFragment : Fragment() {
             .setView(numberPicker)
             .setPositiveButton("Buy") { _, _ ->
                 val quantity = numberPicker.value
-                Toast.makeText(context, "Ordered $quantity $sodaName at $location", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Re-stocked $quantity $sodaName for $location", Toast.LENGTH_LONG).show()
             }.setNegativeButton("Cancel", null)
             .show()
     }

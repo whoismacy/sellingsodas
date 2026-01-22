@@ -18,10 +18,7 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize Firebase Auth
         auth = Firebase.auth
-
-        // Check if user is already signed in
         val currentUser = auth.currentUser
         if (currentUser != null) {
             navigateToSummary(currentUser.email ?: "User")

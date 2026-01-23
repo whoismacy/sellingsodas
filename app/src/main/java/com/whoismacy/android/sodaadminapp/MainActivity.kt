@@ -18,12 +18,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Get username from Intent and handle display name
         val username = intent.getStringExtra("EXTRA_USERNAME") ?: "User"
         val displayName = username.substringBefore("@")
         binding.userNameTextView.text = "Welcome, $displayName!"
-
-        // Logout logic
         binding.logoutButton.setOnClickListener {
             Firebase.auth.signOut()
             val intent = Intent(this, LoginActivity::class.java)
@@ -34,18 +31,27 @@ class MainActivity : AppCompatActivity() {
         val locations = arrayOf("Nairobi(HQ)", "Kisumu", "Eldoret", "Mombasa", "Nakuru")
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, locations)
         binding.locationAutoComplete.setAdapter(adapter)
-
         binding.locationAutoComplete.setOnItemClickListener { parent, _, position, _ ->
             selectedLocation = parent.getItemAtPosition(position) as String
             Toast.makeText(this, "Location set to: $selectedLocation", Toast.LENGTH_SHORT).show()
+            refreshFragments(selectedLocation!!)
         }
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container1, SodaFragment.newInstance("Coke"))
-                .replace(R.id.container2, SodaFragment.newInstance("Fanta"))
-                .replace(R.id.container3, SodaFragment.newInstance("Sprite"))
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.container1, SodaFragment.newInstance("Coke"), "soda_coke")
+                .replace(R.id.container2, SodaFragment.newInstance("Fanta"), "soda_fanta")
+                .replace(R.id.container3, SodaFragment.newInstance("Sprite"), "soda_sprite")
                 .commit()
+        }
+    }
+
+    private fun refreshFragments(location: String) {
+        val fragments = listOf("soda_coke", "soda_fanta", "soda_sprite")
+        for (tag in fragments) {
+            val fragment = supportFragmentManager.findFragmentByTag(tag) as? SodaFragment
+            fragment?.refreshData(location)
         }
     }
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,46 +13,14 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.whoismacy.android.sodaadminapp.databinding.ActivitySummaryBinding
 import com.whoismacy.android.sodaadminapp.databinding.ItemSodaSummaryBinding
-
-data class SodaSummary(val brand: String, val totalSold: Int)
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class SummaryActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySummaryBinding
-    private val sodaBrands = listOf("Coke", "Fanta", "Sprite")
-    
-    // Mock data: Map of Location -> List of SodaSummary
-    private val salesData = mapOf(
-        "All" to listOf(
-            SodaSummary("Coke", 450),
-            SodaSummary("Fanta", 320),
-            SodaSummary("Sprite", 280)
-        ),
-        "Nairobi(HQ)" to listOf(
-            SodaSummary("Coke", 200),
-            SodaSummary("Fanta", 150),
-            SodaSummary("Sprite", 100)
-        ),
-        "Kisumu" to listOf(
-            SodaSummary("Coke", 80),
-            SodaSummary("Fanta", 60),
-            SodaSummary("Sprite", 50)
-        ),
-        "Eldoret" to listOf(
-            SodaSummary("Coke", 70),
-            SodaSummary("Fanta", 40),
-            SodaSummary("Sprite", 60)
-        ),
-        "Mombasa" to listOf(
-            SodaSummary("Coke", 60),
-            SodaSummary("Fanta", 40),
-            SodaSummary("Sprite", 40)
-        ),
-        "Nakuru" to listOf(
-            SodaSummary("Coke", 40),
-            SodaSummary("Fanta", 30),
-            SodaSummary("Sprite", 30)
-        )
-    )
+    private val apiService = SodaApiService.create()
+    private var allSalesData: Map<String, List<SodaSummary>> = emptyMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,16 +43,37 @@ class SummaryActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        setupLocationSpinner()
-        setupRecyclerView("All")
+        binding.summaryRecyclerView.layoutManager = LinearLayoutManager(this)
+        
+        fetchSummaryData()
     }
 
-    private fun setupLocationSpinner() {
-        val locations = arrayOf("All", "Nairobi(HQ)", "Kisumu", "Eldoret", "Mombasa", "Nakuru")
+    private fun fetchSummaryData() {
+        apiService.getSalesSummary().enqueue(object : Callback<SummaryResponse> {
+            override fun onResponse(call: Call<SummaryResponse>, response: Response<SummaryResponse>) {
+                if (response.isSuccessful && response.body() != null) {
+                    val summary = response.body()!!
+                    allSalesData = summary.salesData
+                    setupLocationSpinner(summary.locations)
+                    updateSummary("All")
+                } else {
+                    Toast.makeText(this@SummaryActivity, "Failed to load summary", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<SummaryResponse>, t: Throwable) {
+                Toast.makeText(this@SummaryActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun setupLocationSpinner(apiLocations: List<String>) {
+        val locations = mutableListOf("All")
+        locations.addAll(apiLocations)
+        
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, locations)
         binding.locationAutoComplete.setAdapter(adapter)
         
-        // Set default text
         binding.locationAutoComplete.setText(locations[0], false)
 
         binding.locationAutoComplete.setOnItemClickListener { parent, _, position, _ ->
@@ -92,13 +82,8 @@ class SummaryActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupRecyclerView(location: String) {
-        binding.summaryRecyclerView.layoutManager = LinearLayoutManager(this)
-        updateSummary(location)
-    }
-
     private fun updateSummary(location: String) {
-        val data = salesData[location] ?: salesData["All"]!!
+        val data = allSalesData[location] ?: emptyList()
         binding.summaryRecyclerView.adapter = SummaryAdapter(data)
     }
 

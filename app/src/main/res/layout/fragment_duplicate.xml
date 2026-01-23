@@ -31,14 +31,6 @@
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/remainingTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Remaining: --"
-            android:textSize="16sp" />
-
-        <TextView
             android:id="@+id/moneyTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

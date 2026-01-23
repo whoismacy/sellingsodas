@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SodaAdminApp</string>
+    <string name="brand_name">Brand Name</string>
 </resources>

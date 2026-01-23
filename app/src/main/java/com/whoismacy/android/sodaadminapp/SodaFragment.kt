@@ -9,11 +9,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.whoismacy.android.sodaadminapp.databinding.FragmentDuplicateBinding
-import kotlin.random.Random
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class SodaFragment : Fragment() {
     private var _binding: FragmentDuplicateBinding? = null
     private val binding get() = _binding!!
+    private val apiService = SodaApiService.create()
+    private var sodaName: String = "Unknown Soda"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -21,17 +25,12 @@ class SodaFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentDuplicateBinding.inflate(inflater, container, false)
-        val sodaName = arguments?.getString(ARG_SODA_NAME) ?: "Unknown Soda"
+        sodaName = arguments?.getString(ARG_SODA_NAME) ?: "Unknown Soda"
         binding.textView.text = sodaName
 
-        // Mock data for display (to be replaced with API later)
-        val mockSold = Random.nextInt(50, 200)
-        val mockRemaining = Random.nextInt(10, 100)
-        val mockMoney = Random.nextInt(500, 5000)
-
-        binding.soldTextView.text = "Sold: $mockSold"
-        binding.remainingTextView.text = "Remaining: $mockRemaining"
-        binding.moneyTextView.text = "Money Generated: $$mockMoney"
+        // Initial state
+        binding.soldTextView.text = "Sold: --"
+        binding.moneyTextView.text = "Money Generated: $--"
 
         binding.innerBuyButton.setOnClickListener {
             val mainActivity = activity as? MainActivity
@@ -45,6 +44,24 @@ class SodaFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    fun refreshData(location: String) {
+        apiService.getSodaDetails(location, sodaName).enqueue(object : Callback<SodaResponse> {
+            override fun onResponse(call: Call<SodaResponse>, response: Response<SodaResponse>) {
+                if (response.isSuccessful && response.body() != null) {
+                    val metrics = response.body()!!.metrics
+                    binding.soldTextView.text = "Sold: ${metrics.sold}"
+                    binding.moneyTextView.text = "Money Generated: $${metrics.revenue}"
+                } else {
+                    Toast.makeText(context, "Error fetching data for $sodaName", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<SodaResponse>, t: Throwable) {
+                Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun showQuantityDialog(
@@ -66,6 +83,8 @@ class SodaFragment : Fragment() {
             .setPositiveButton("Buy") { _, _ ->
                 val quantity = numberPicker.value
                 Toast.makeText(context, "Re-stocked $quantity $sodaName for $location", Toast.LENGTH_LONG).show()
+                // After re-stocking, we might want to refresh data
+                refreshData(location)
             }.setNegativeButton("Cancel", null)
             .show()
     }

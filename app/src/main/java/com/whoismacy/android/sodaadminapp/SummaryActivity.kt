@@ -9,8 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.whoismacy.android.sodaadminapp.databinding.ActivitySummaryBinding
 import com.whoismacy.android.sodaadminapp.databinding.ItemSodaSummaryBinding
 import retrofit2.Call

@@ -35,8 +35,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Total Money: $--"
+            android:text="Total Money: Kshs--"
             android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/quantityTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Remaining: --"
+            android:textSize="16sp" />
+
 
         <Button
             android:id="@+id/innerBuyButton"

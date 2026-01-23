@@ -1,5 +1,6 @@
 package com.whoismacy.android.sodaadminapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class SodaFragment : Fragment() {
+    @Suppress("ktlint:standard:backing-property-naming")
     private var _binding: FragmentDuplicateBinding? = null
     private val binding get() = _binding!!
     private val apiService = SodaApiService.create()
@@ -30,7 +32,8 @@ class SodaFragment : Fragment() {
 
         // Initial state
         binding.soldTextView.text = "Sold: --"
-        binding.moneyTextView.text = "Money Generated: $--"
+        binding.moneyTextView.text = "Total Money: Kshs--"
+        binding.quantityTextView.text = "Remaining: --"
 
         binding.innerBuyButton.setOnClickListener {
             val mainActivity = activity as? MainActivity
@@ -47,21 +50,31 @@ class SodaFragment : Fragment() {
     }
 
     fun refreshData(location: String) {
-        apiService.getSodaDetails(location, sodaName).enqueue(object : Callback<SodaResponse> {
-            override fun onResponse(call: Call<SodaResponse>, response: Response<SodaResponse>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val metrics = response.body()!!.metrics
-                    binding.soldTextView.text = "Sold: ${metrics.sold}"
-                    binding.moneyTextView.text = "Money Generated: $${metrics.revenue}"
-                } else {
-                    Toast.makeText(context, "Error fetching data for $sodaName", Toast.LENGTH_SHORT).show()
+        apiService.getSodaDetails(location, sodaName).enqueue(
+            object : Callback<SodaResponse> {
+                @SuppressLint("SetTextI18n")
+                override fun onResponse(
+                    call: Call<SodaResponse>,
+                    response: Response<SodaResponse>,
+                ) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val metrics = response.body()!!.metrics
+                        binding.soldTextView.text = "Sold: ${metrics.sold}"
+                        binding.moneyTextView.text = "Total Money: Kshs${metrics.revenue}"
+                        binding.quantityTextView.text = "Remaining: ${metrics.remaining}"
+                    } else {
+                        Toast.makeText(context, "Error fetching data for $sodaName", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<SodaResponse>, t: Throwable) {
-                Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onFailure(
+                    call: Call<SodaResponse>,
+                    t: Throwable,
+                ) {
+                    Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            },
+        )
     }
 
     private fun showQuantityDialog(
@@ -87,22 +100,33 @@ class SodaFragment : Fragment() {
             .show()
     }
 
-    private fun performRestock(location: String, brand: String, quantity: Int) {
-        apiService.restock(location, brand, quantity).enqueue(object : Callback<RestockResponse> {
-            override fun onResponse(call: Call<RestockResponse>, response: Response<RestockResponse>) {
-                if (response.isSuccessful) {
-                    Toast.makeText(context, "Successfully re-stocked $quantity $brand at $location", Toast.LENGTH_LONG).show()
-                    // Refresh UI to show updated data
-                    refreshData(location)
-                } else {
-                    Toast.makeText(context, "Failed to re-stock: ${response.message()}", Toast.LENGTH_SHORT).show()
+    private fun performRestock(
+        location: String,
+        brand: String,
+        quantity: Int,
+    ) {
+        apiService.restock(location, brand, quantity).enqueue(
+            object : Callback<RestockResponse> {
+                override fun onResponse(
+                    call: Call<RestockResponse>,
+                    response: Response<RestockResponse>,
+                ) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(context, "Successfully re-stocked $quantity $brand at $location", Toast.LENGTH_LONG).show()
+                        refreshData(location)
+                    } else {
+                        Toast.makeText(context, "Failed to re-stock: ${response.message()}", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<RestockResponse>, t: Throwable) {
-                Toast.makeText(context, "Network error during re-stock: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onFailure(
+                    call: Call<RestockResponse>,
+                    t: Throwable,
+                ) {
+                    Toast.makeText(context, "Network error during re-stock: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            },
+        )
     }
 
     override fun onDestroyView() {

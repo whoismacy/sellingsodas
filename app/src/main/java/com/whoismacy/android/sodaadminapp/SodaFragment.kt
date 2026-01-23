@@ -80,13 +80,29 @@ class SodaFragment : Fragment() {
             .setTitle("Select Quantity for $sodaName")
             .setMessage("Location: $location")
             .setView(numberPicker)
-            .setPositiveButton("Buy") { _, _ ->
+            .setPositiveButton("Re-Stock") { _, _ ->
                 val quantity = numberPicker.value
-                Toast.makeText(context, "Re-stocked $quantity $sodaName for $location", Toast.LENGTH_LONG).show()
-                // After re-stocking, we might want to refresh data
-                refreshData(location)
+                performRestock(location, sodaName, quantity)
             }.setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun performRestock(location: String, brand: String, quantity: Int) {
+        apiService.restock(location, brand, quantity).enqueue(object : Callback<RestockResponse> {
+            override fun onResponse(call: Call<RestockResponse>, response: Response<RestockResponse>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(context, "Successfully re-stocked $quantity $brand at $location", Toast.LENGTH_LONG).show()
+                    // Refresh UI to show updated data
+                    refreshData(location)
+                } else {
+                    Toast.makeText(context, "Failed to re-stock: ${response.message()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<RestockResponse>, t: Throwable) {
+                Toast.makeText(context, "Network error during re-stock: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     override fun onDestroyView() {

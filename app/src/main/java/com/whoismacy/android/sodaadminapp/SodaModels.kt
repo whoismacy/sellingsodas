@@ -23,3 +23,14 @@ data class SodaSummary(
     val brand: String,
     val totalSold: Int
 )
+
+data class RestockResponse(
+    val message: String,
+    val data: RestockData
+)
+
+data class RestockData(
+    val location: String,
+    val brand: String,
+    val newTotal: Int
+)

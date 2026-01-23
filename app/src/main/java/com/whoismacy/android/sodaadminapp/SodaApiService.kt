@@ -4,6 +4,7 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface SodaApiService {
@@ -16,8 +17,15 @@ interface SodaApiService {
     @GET("api/sales-summary")
     fun getSalesSummary(): Call<SummaryResponse>
 
+    @POST("api/restock")
+    fun restock(
+        @Query("location") location: String,
+        @Query("brand") brand: String,
+        @Query("quantity") quantity: Int,
+    ): Call<RestockResponse>
+
     companion object {
-        private const val BASE_URL = "http://localhost.com/" // Replace with your actual base URL
+        private const val BASE_URL = "https://kasie-nongranular-darwin.ngrok-free.dev/"
 
         fun create(): SodaApiService {
             val retrofit =
